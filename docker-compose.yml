@@ -1,0 +1,33 @@
+name: "micro-services"
+
+services:
+  rabbit:
+    container_name: "MicroServices-RabbitMQ"
+    image: "rabbitmq:3.13.7-management-alpine"
+    restart: always
+    ports:
+      - "14001:5672"
+      - "14000:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      - micro_services_network
+
+  mongo:
+    container_name: "MicroServices-MongoDB"
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./MongoDB:/data/db
+    networks:
+      - micro_services_network
+
+networks:
+  micro_services_network:
+    driver: bridge
