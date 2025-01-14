@@ -26,6 +26,7 @@ amqplib.connect("amqp://user:password@localhost:14001").then(conn => {
         ch.bindQueue(queue, "comment", "");
         ch.consume(queue, msg => {
             const { postId, comments } = JSON.parse(msg.content.toString());
+            console.log(JSON.parse(msg.content.toString()));
             PostMdl.findById(postId).then(async item => {
                 if (item) {
                     item.comments = comments;

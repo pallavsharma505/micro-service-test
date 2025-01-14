@@ -17,6 +17,14 @@ const ListMdl = mongoose.model("List", {
     comments: Number
 });
 
+const updateModel = async (postId, comments) => {
+    const item = await ListMdl.findOne({postId});
+    if (item) {
+        item.comments = comments;
+        await item.save();
+    }
+};
+
 amqplib.connect("amqp://user:password@localhost:14001").then(conn => {
     conn.createChannel().then(ch => {
         const queue = "update-list-comment";
@@ -25,13 +33,8 @@ amqplib.connect("amqp://user:password@localhost:14001").then(conn => {
         ch.bindQueue(queue, "comment", "");
         ch.consume(queue, msg => {
             const { postId, comments } = JSON.parse(msg.content.toString());
-            ListMdl.findById(postId).then(async item => {
-                if (item) {
-                    item.comments = comments;
-                    await item.save();
-                }
-                ch.ack(msg);
-            });
+            updateModel(postId, comments);
+            ch.ack(msg);
         });
     });
 
